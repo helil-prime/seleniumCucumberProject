@@ -3,8 +3,13 @@ package utilities;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DBUtils {
 	
@@ -18,6 +23,7 @@ public class DBUtils {
 	private Connection dbconnect;
 	private Statement statement;
 	private ResultSet resultset;
+	private ResultSetMetaData resultsetMetadata;
 	
 	public static void main(String[] args) {
 		
@@ -45,23 +51,42 @@ public class DBUtils {
 		
 		String insertTrade = "INSERT INTO records "
 				+ "(user_id, long_short, symbol, open_date, entry_price, close_date, exit_price, gain) VALUES('2', '1', 'TSLA', '2021-06-23', '600', '0000-00-00', '0.00', '0.00')";
+		String deleteData = "DELETE FROM records WHERE id=64";
+		String updateData = "UPDATE records SET symbol='CLL' where id=18";
+		String selectData = "SELECT * FROM records WHERE id=18";
 		DBUtils utils = new DBUtils();
-		utils.insertData(insertTrade);
+		List<String> results  = utils.selectData(selectData);
+		for (String keys : results) {
+			System.out.println(keys);
+		}
 		
 	}
 	
-	public void selectData(String query) {
+	public List<String> selectData(String query) {
+		List<String> list = new ArrayList<>();
 		try {
 			dbconnect = DriverManager.getConnection(dburl, username, password);
 			System.out.println("DB Connection Established.");
 			statement = dbconnect.createStatement();
 			resultset = statement.executeQuery(query);
+			resultsetMetadata = resultset.getMetaData();
+			int columnCount = resultsetMetadata.getColumnCount();
+			resultset.next();
+			for (int i = 1; i <= columnCount; i++) {
+				list.add(resultset.getString(i));
+			}
+//			while (resultset.next()) {
+//				++counter;
+//				
+//			}
 			dbconnect.close();
 		} catch (SQLException e) {
 			System.out.println("No DB Connection Established.");
 			e.printStackTrace();
 		}
+		return list;
 	}
+	
 	
 	public void insertData(String query) {
 		try {
