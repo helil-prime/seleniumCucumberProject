@@ -5,12 +5,9 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.Response;
-import io.restassured.response.ResponseBody;
-
 import static io.restassured.RestAssured.*;
-
+import static org.hamcrest.Matchers.*;
 import org.junit.Assert;
 
 public class PetsStepDefs {
@@ -19,7 +16,7 @@ public class PetsStepDefs {
 	String baseUrl;
 	String path;
 	Response response;
-	JsonPath jpath;
+	//JsonPath jpath;
 	
 	String requestBody;
 	
@@ -35,8 +32,6 @@ public class PetsStepDefs {
 		response = given().queryParam("status", status)
 	    .when().get(baseUrl).then().extract().response();
 		
-		
-		jpath = response.jsonPath();
 		System.out.println("status code :" + response.getStatusCode());
 	    }
 	
@@ -45,14 +40,19 @@ public class PetsStepDefs {
 	public void response_status_code_should_be(Integer statuscode) {
 		System.out.println("status code :" + response.getStatusCode());
 		Assert.assertTrue(statuscode == response.getStatusCode());
-		response.then().statusCode(statuscode);
+		response.then().assertThat().statusCode(statuscode);
+		
+		
+		System.out.println("used jsonpath to print category name : " + response.jsonPath().get("tags[0].name"));
+		
+		System.out.println("used path to print category name : " + response.path("tags[0].name"));
 	}
 
 	@Then("Content type should be {string}")
 	public void content_type_should_be(String string) {
 		System.out.println("content Type: " + response.getContentType());
 		response.then().contentType(string);
-		System.out.println(jpath.get("name").toString());
+		System.out.println(response.jsonPath().get("name").toString());
 				
 	}
 	
@@ -66,11 +66,14 @@ public class PetsStepDefs {
 	    response = given().when().get(baseUrl+int1)
 	    .andReturn();
 	    
+	    response.
+	    then().assertThat().statusCode(int1)
+	    .and().assertThat().contentType("application.json")
+	    .and().assertThat().body("category.name", equalTo("booboo"));
+	    
 	    System.out.println("status code :" + response.getStatusCode());
 	    
-	    jpath = response.jsonPath();
-	    
-	    System.out.println(jpath.get("category").toString());
+	    System.out.println(response.jsonPath().get("category").toString());
 	}
 	
 	
@@ -80,7 +83,7 @@ public class PetsStepDefs {
 	public void i_have_the_post_url_and_content_body() {
 	    baseUrl = "https://petstore.swagger.io/v2/pet";
 	    requestBody = "{\r\n"
-	    		+ "  \"id\": 22112,\r\n"
+	    		+ "  \"id\": 22115,\r\n"
 	    		+ "  \"category\": {\r\n"
 	    		+ "    \"id\": 6,\r\n"
 	    		+ "    \"name\": \"sheperd\"\r\n"
@@ -104,19 +107,18 @@ public class PetsStepDefs {
 	public void i_perform_post_request_to_url() {
 	    response = given().contentType(ContentType.JSON).body(requestBody)
 	    		.post(baseUrl).andReturn();
-	    
-	    jpath = response.jsonPath(); 
+	   
 	}
 	
 	
 	@Then("response body should contain request body data")
 	public void response_body_should_contain_request_body_data() {
-		 System.out.println(jpath.get("id").toString());
-		 System.out.println(jpath.get("category").toString());
-		 System.out.println(jpath.get("name").toString());
-		 System.out.println(jpath.get("photoUrls").toString());
-         System.out.println(jpath.get("tags").toString());
-         System.out.println(jpath.get("status").toString());
+		 System.out.println(response.jsonPath().get("id").toString());
+		 System.out.println(response.jsonPath().get("category").toString());
+		 System.out.println(response.jsonPath().get("name").toString());
+		 System.out.println(response.jsonPath().get("photoUrls").toString());
+         System.out.println(response.jsonPath().get("tags").toString());
+         System.out.println(response.jsonPath().get("status").toString());
 	}
 
 }
