@@ -5,6 +5,7 @@ import static io.restassured.RestAssured.given;
 import static org.testng.Assert.*;
 import org.testng.annotations.Test;
 import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 
 public class PetStoreTests {
@@ -101,6 +102,21 @@ public class PetStoreTests {
 
 	@Test
 	public void findByInvalidID() {
+		
+       baseUrl = "https://petstore.swagger.io/v2/pet/66000";
+		
+		response = given().when().get(baseUrl).andReturn();
+		
+		int scode = response.statusCode();
+		String contentType = response.getContentType();
+		String message = response.path("message");
+		System.out.println("status code :" + scode);
+		System.out.println("content type :" + contentType);
+		System.out.println("pet Name :" + message);
+		
+		assertEquals(scode, 200);
+		assertEquals(contentType, "application/json");
+		assertEquals(message, "Pet not found");
 
 	}
 
@@ -114,20 +130,91 @@ public class PetStoreTests {
 
 	@Test
 	public void postNewPet() {
+		 baseUrl = "https://petstore.swagger.io/v2/pet";
+		    requestBody = "{\r\n"
+		    		+ "  \"id\": 22303,\r\n"
+		    		+ "  \"category\": {\r\n"
+		    		+ "    \"id\": 6,\r\n"
+		    		+ "    \"name\": \"sheperd\"\r\n"
+		    		+ "  },\r\n"
+		    		+ "  \"name\": \"booboo\",\r\n"
+		    		+ "  \"photoUrls\": [\r\n"
+		    		+ "    \"string\"\r\n"
+		    		+ "  ],\r\n"
+		    		+ "  \"tags\": [\r\n"
+		    		+ "    {\r\n"
+		    		+ "      \"id\": 10029,\r\n"
+		    		+ "      \"name\": \"DC\"\r\n"
+		    		+ "    }\r\n"
+		    		+ "  ],\r\n"
+		    		+ "  \"status\": \"available\"\r\n"
+		    		+ "}";
+		    
+		    response = given().contentType(ContentType.JSON).body(requestBody)
+		    		.post(baseUrl).andReturn();
+		    
+		    int scode = response.statusCode();
+			String contentType = response.getContentType();
+			System.out.println("content type :" + contentType);
+			System.out.println("status code :" + scode);
+			assertEquals(scode, 200);
+			assertEquals(contentType, "application/json");
+			
+			int id = response.path("id");
+			String petName = response.path("name");
+			String status = response.path("status");
+			assertEquals(id, 22303);
+			assertEquals(petName, "booboo");
+			assertEquals(status, "available");
 
 	}
 
 	/*
-	 * Scenario: As a user, I should be able to perform POST request to add new pet to store 
+	 * Scenario: As a user, I should not be able to perform POST request to invalid data structure
 	 * Given I have the POST request URL and invalid request body 
 	 * When I perform POST request to URL with request body 
-	 * Then Response status code should be 405 invalid input 
+	 * Then Response status code should be 400 invalid input 
 	 * And content type is application.json
+	 * And message should be "bad input"
 	 * 
 	 */
 
 	@Test
 	public void postNewPetWithInvalidRequestBody() {
+		
+		baseUrl = "https://petstore.swagger.io/v2/pet";
+	    requestBody = "{\r\n"
+	    		+ "  \"i\" 22303,\r\n"
+	    		+ "  \"category\": {\r\n"
+	    		+ "    \"id\": 6,\r\n"
+	    		+ "    \"name\": \"sheperd\"\r\n"
+	    		+ "  },\r\n"
+	    		+ "  \"name\": \"booboo\",\r\n"
+	    		+ "  \"photoUrls\": [\r\n"
+	    		+ "    \"string\"\r\n"
+	    		+ "  ],\r\n"
+	    		+ "  \"tags\": [\r\n"
+	    		+ "    {\r\n"
+	    		+ "      \"id\": 10029,\r\n"
+	    		+ "      \"name\": \"DC\"\r\n"
+	    		+ "    }\r\n"
+	    		+ "  ],\r\n"
+	    		+ "  \"status\": \"available\"\r\n"
+	    		+ "}";
+	    
+	    response = given().contentType(ContentType.JSON).body(requestBody)
+	    		.post(baseUrl).andReturn();
+	    
+	    response.getBody().prettyPrint();
+	    
+	    int scode = response.statusCode();
+		String contentType = response.getContentType();
+		System.out.println("content type :" + contentType);
+		System.out.println("status code :" + scode);
+		assertEquals(scode, 400);
+		assertEquals(contentType, "application/json");
+		
+		
 
 	}
 }
