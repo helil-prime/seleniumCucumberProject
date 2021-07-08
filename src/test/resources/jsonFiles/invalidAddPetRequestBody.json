@@ -1,0 +1,22 @@
+{
+    "id": 23333,
+    "category": {
+        "id": 6,
+        "name": "sheperd"
+    },
+    "name": "booboo",
+    "photoUrls": [
+        "string"
+    ],
+    "tags": [
+        {
+            "id": 10029
+            "name": "DC"
+        },
+        { 
+            "id": 1123,
+            "name": "DMW"
+        }
+    ],
+    "status": "available"
+}

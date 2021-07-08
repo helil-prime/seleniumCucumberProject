@@ -1,0 +1,18 @@
+{
+  "id": 22303,
+  "category": {
+    "id": 1,
+    "name": "husky"
+  },
+  "name": "doggie",
+  "photoUrls": [
+    "www.google.com"
+  ],
+  "tags": [
+    {
+      "id": 2,
+      "name": "DMW"
+    }
+  ],
+  "status": "pending"
+}
