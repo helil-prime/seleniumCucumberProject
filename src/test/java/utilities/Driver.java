@@ -2,7 +2,7 @@ package utilities;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -24,7 +24,7 @@ public class Driver {
 	 * all I have to do is change the browser name in the properties file.
 	 */
 	
-	private static final String sauceurl = "https://helil-prime:a3662504-404e-4230-b888-0603405a7ca6@ondemand.us-west-1.saucelabs.com:443/wd/hub";
+	private static final String sauceHub = "https://helil-prime:a3662504-404e-4230-b888-0603405a7ca6@ondemand.us-west-1.saucelabs.com:443/wd/hub";
 	
 	private static WebDriver driver;
 	public static WebDriver getDriver() {
@@ -50,7 +50,7 @@ public class Driver {
 				driver = new ChromeDriver();
 				break;
 			case "saucelabs":
-				sauceSetup(sauceurl, "Windows 7", "ie", "latest");
+				sauceLabsSetUp();
 				break;
 			case "headless":
 			default:
@@ -64,17 +64,19 @@ public class Driver {
 	}
 	
 	
-	public static void sauceSetup(String url, String platform, String browser, String browserVersion) {
-		DesiredCapabilities capability = new DesiredCapabilities();
-		capability.setCapability("platform", platform);
-		capability.setCapability("browserName", browser);
-		capability.setCapability("version", browserVersion);
-		try {
-			driver = new RemoteWebDriver(new URL(url), capability);
+	// saucelabs configs
+	public static void sauceLabsSetUp() {
+		MutableCapabilities sauceOptions = new MutableCapabilities();
+		ChromeOptions browserOptions = new ChromeOptions();
+		browserOptions.setExperimentalOption("w3c", true);
+		browserOptions.setCapability("platformName", "Windows 8.1");
+		browserOptions.setCapability("browserVersion", "80.0");
+		browserOptions.setCapability("sauce:options", sauceOptions);
+	    try {
+			driver = new RemoteWebDriver(new URL(sauceHub), browserOptions);
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	public static void quitDriver() {
